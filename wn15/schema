@@ -1,0 +1,54 @@
+Set foreign_key_checks = 0; #turn off constraints temporaily
+
+#since constraints cause problems, drop tables first, working backward
+DROP TABLE IF EXISTS wn15_responses;
+DROP TABLE IF EXISTS wn15_questions;
+DROP TABLE IF EXISTS wn15_surveys;
+
+#all tables must be of type InnoDB to do transactions, foreign key constraints
+CREATE TABLE wn15_surveys(
+SurveyID INT UNSIGNED NOT NULL AUTO_INCREMENT,
+AdminID INT UNSIGNED DEFAULT 0,
+Title VARCHAR(255) DEFAULT '',
+Description TEXT,
+DatedAdded DATETIME,
+LastUpdated TIMESTAMP DEFAULT 0 ON UPDATE CURRENT_TIMESTAMP,
+PRIMARY KEY (SurveyID)
+)ENGINE=INNODB;
+
+#assigning first survey to AdminID == 1
+INSERT INTO wn15_surveys VALUES (NULL,1, 'Our First Survey','Description of Survey',NOW(),NOW());
+
+#foreign key field must match size and type, hence SurveyID is INT UNSIGNED 
+CREATE TABLE wn15_questions(
+QuestionID INT UNSIGNED NOT NULL AUTO_INCREMENT,
+SurveyID INT UNSIGNED DEFAULT 0,
+Question TEXT DEFAULT '',
+Description TEXT,
+DateAdded DATETIME,
+LastUpdated TIMESTAMP DEFAULT 0 ON UPDATE CURRENT_TIMESTAMP,
+PRIMARY KEY (QuestionID),
+INDEX SurveysID_index(SurveyID),
+FOREIGN KEY (SurveyID) REFERENCES wn15_surveys(SurveyID) ON DELETE CASCADE
+)ENGINE=INNODB;
+
+INSERT INTO wn15_questions VALUES (NULL,1, 'Do You Like Our Website?', 'We really want to know!', NOW(),NOW());
+INSERT INTO wn15_questions VALUES (NULL,1, 'Do You Like Cookies?', 'We really like cookies!', NOW(),NOW());
+INSERT INTO wn15_questions VALUES (NULL,1, 'What is your favorite color?', 'We really like the color black!', NOW(),NOW());
+
+#foreign key field must match size and type, hence SurveyID is INT UNSIGNED 
+CREATE TABLE wn15_responses(
+ResponsesID INT UNSIGNED NOT NULL AUTO_INCREMENT,
+SurveysID INT UNSIGNED DEFAULT 0,
+Responses TEXT DEFAULT '',
+DateAdded DATETIME,
+LastUpdated TIMESTAMP DEFAULT 0 ON UPDATE CURRENT_TIMESTAMP,
+PRIMARY KEY (ResponsesID),
+INDEX SurveyID_index(SurveyID),
+FOREIGN KEY (SurveyID) REFERENCES wn15_surveys(SurveyID) ON DELETE CASCADE
+)ENGINE=INNODB;
+
+INSERT INTO wn15_responses VALUES (NULL,1,'All about our responders',NOW(),NOW());
+INSERT INTO wn15_responses VALUES (NULL,1,'Responders IP Address?',NOW(),NOW());
+INSERT INTO wn15_responses VALUES (NULL,1,'What is your primary browser choice?',NOW(),NOW());
+INSERT INTO wn15_responses VALUES (NULL,1,'What is your operating system?',NOW(),NOW());
